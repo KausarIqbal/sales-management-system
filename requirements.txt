@@ -1,3 +1,6 @@
 Flask
 mysql-connector-python
 gunicorn
+git branch -M main
+git remote add origin https://github.com/KausarIqbal/sales-management-system.git
+git push -u origin main
