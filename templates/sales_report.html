@@ -1,0 +1,49 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<h2 class="mb-4">Sales Report</h2>
+
+<div class="card p-4">
+
+    <table class="table table-hover">
+
+        <thead class="table-dark">
+
+            <tr>
+                <th>Sale ID</th>
+                <th>Sales Rep</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Total Amount</th>
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            {% for sale in sales %}
+<tr>
+
+    <td>{{ sale.sale_id }}</td>
+
+    <td>{{ sale.sales_rep }}</td>
+
+    <td>{{ sale.customer }}</td>
+
+    <td>{{ sale.date }}</td>
+
+    <td>
+        Rs. {{ sale.total_amount }}
+    </td>
+
+</tr>
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}

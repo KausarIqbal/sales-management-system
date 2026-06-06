@@ -1,0 +1,94 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="card p-4">
+
+        <h2 class="mb-4">
+            Add Sale
+        </h2>
+
+        <form method="POST">
+
+            <!-- Customer -->
+
+            <div class="mb-3">
+
+                <label class="form-label">
+                    Customer
+                </label>
+
+                <select
+                    name="customer_id"
+                    class="form-select"
+                    required
+                >
+
+                    {% for customer in customers %}
+
+                    <option value="{{ customer.customer_id }}">
+                        {{ customer.name }}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+            <!-- Product -->
+
+            <div class="mb-3">
+
+                <label class="form-label">
+                    Product
+                </label>
+
+                <select
+                    name="product_id"
+                    class="form-select"
+                    required
+                >
+
+                    {% for product in products %}
+
+                    <option value="{{ product.product_id }}">
+                        {{ product.name }}
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+            <!-- Quantity -->
+
+            <div class="mb-3">
+
+                <label class="form-label">
+                    Quantity
+                </label>
+
+                <input
+                    type="number"
+                    name="quantity"
+                    class="form-control"
+                    required
+                >
+
+            </div>
+
+            <button class="btn btn-dark">
+                Save Sale
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

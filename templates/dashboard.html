@@ -1,0 +1,159 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<h2 class="mb-4">Dashboard Overview</h2>
+
+<div class="row g-4">
+
+    <div class="col-md-3">
+        <div class="card p-3">
+            <h5>Total Employees</h5>
+            <h2>{{ total_employees }}</h2>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card p-3">
+            <h5>Total Products</h5>
+            <h2>{{ total_products }}</h2>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card p-3">
+            <h5>Total Sales</h5>
+            <h2>{{ total_sales }}</h2>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card p-3">
+            <h5>Total Revenue</h5>
+            <h2>{{ total_revenue }}</h2>
+        </div>
+    </div>
+
+</div>
+
+
+<div class="row mt-5 g-4">
+
+    <!-- Top Sales Rep -->
+
+    <div class="col-md-4">
+
+        <div class="card p-4 h-100">
+
+            <h4>Top Sales Rep</h4>
+
+            <hr>
+
+            <h5>{{ top_rep.name }}</h5>
+
+            <p>
+                Sales:
+                Rs. {{ top_rep.total_sales }}
+            </p>
+
+        </div>
+
+    </div>
+
+    <!-- Top Customer -->
+
+    <div class="col-md-4">
+
+        <div class="card p-4 h-100">
+
+            <h4>Top Customer</h4>
+
+            <hr>
+
+            <h5>{{ top_customer.name }}</h5>
+
+            <p>
+                Orders:
+                {{ top_customer.total_orders }}
+            </p>
+
+        </div>
+
+    </div>
+
+    <!-- Top Product -->
+
+    <div class="col-md-4">
+
+        <div class="card p-4 h-100">
+
+            <h4>Top Product</h4>
+
+            <hr>
+
+            <h5>{{ top_product.name }}</h5>
+
+            <p>
+                Units Sold:
+                {{ top_product.total_sold }}
+            </p>
+
+        </div>
+
+    </div>
+<div class="card p-4 mt-5">
+
+    <h3 class="mb-4">
+        Remaining Stock Report
+    </h3>
+
+    <table class="table table-hover align-middle">
+
+        <thead class="table-dark">
+
+            <tr>
+                <th>Sales Rep</th>
+                <th>Remaining Stock</th>
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            {% for stock in remaining_stock %}
+
+            <tr>
+
+                <td>
+                    {{ stock.name }}
+                </td>
+
+                <td>
+
+                    {% if stock.remaining_stock < 20 %}
+
+                        <div class="stock-box low-stock">
+                            {{ stock.remaining_stock }} Units
+                        </div>
+
+                    {% else %}
+
+                        <div class="stock-box">
+                            {{ stock.remaining_stock }} Units
+                        </div>
+
+                    {% endif %}
+
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}

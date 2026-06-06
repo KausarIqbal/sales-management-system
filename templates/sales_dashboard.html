@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h2>
+    Welcome {{ session.name }}
+</h2>
+
+<div class="row mt-4">
+
+    <div class="col-md-4">
+        <div class="card p-4">
+            <h5>My Sales</h5>
+            <h2>{{ my_sales }}</h2>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card p-4">
+            <h5>My Revenue</h5>
+            <h2>Rs {{ my_revenue }}</h2>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card p-4">
+            <h5>My Customers</h5>
+            <h2>{{ my_customers }}</h2>
+        </div>
+    </div>
+
+</div>
+
+<div class="mt-5">
+
+    <a href="/add-sale" class="btn btn-dark me-2">
+        Add Sale
+    </a>
+
+    <a href="/my-sales" class="btn btn-secondary">
+        My Sales
+    </a>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="card p-4">
+
+    <h2 class="mb-4">
+        Add Employee
+    </h2>
+
+    <form method="POST">
+
+        <div class="mb-3">
+
+            <label>Name</label>
+
+            <input
+                type="text"
+                name="name"
+                class="form-control"
+                required>
+
+        </div>
+
+        <div class="mb-3">
+
+            <label>Role</label>
+
+            <select
+                name="role"
+                class="form-control">
+
+                <option value="manager">
+                    Manager
+                </option>
+
+                <option value="sales_rep">
+                    Sales Rep
+                </option>
+
+            </select>
+
+        </div>
+
+        <div class="mb-3">
+
+            <label>Username</label>
+
+            <input
+                type="text"
+                name="username"
+                class="form-control"
+                required>
+
+        </div>
+
+        <div class="mb-3">
+
+            <label>Password</label>
+
+            <input
+                type="password"
+                name="password"
+                class="form-control"
+                required>
+
+        </div>
+
+        <button class="btn btn-dark">
+
+            Save Employee
+
+        </button>
+
+    </form>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<h2 class="mb-4">Products Management</h2>
+
+<div class="card p-4">
+<div class="d-flex justify-content-between mb-3">
+
+    <h2>Products</h2>
+
+    <a href="/add-product" class="btn btn-dark">
+        Add Product
+    </a>
+
+</div>
+    <table class="table table-hover">
+
+        <thead class="table-dark">
+
+            <tr>
+                <th>Product ID</th>
+                <th>Product Name</th>
+                <th>Price</th>
+                <th>Actions</th>
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+    {% for product in products %}
+
+    <tr>
+
+        <td>{{ product.product_id }}</td>
+
+        <td>{{ product.name }}</td>
+
+        <td>
+            Rs. {{ product.price }}
+        </td>
+
+        <td>
+
+            <a href="/edit-product/{{ product.product_id }}"
+               class="btn btn-sm btn-primary">
+               Edit
+            </a>
+
+            <a href="/delete-product/{{ product.product_id }}"
+               class="btn btn-sm btn-danger">
+               Delete
+            </a>
+
+        </td>
+
+    </tr>
+
+    {% endfor %}
+
+</tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+<h2 class="mb-4">Employees Management</h2>
+
+<div class="card p-4">
+    <div class="d-flex justify-content-between mb-3">
+
+    <h2>Employees</h2>
+
+    <a href="/add-employee" class="btn btn-dark">
+        Add Employee
+    </a>
+
+</div>
+
+    <table class="table table-hover">
+
+        <thead class="table-dark">
+
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Manager ID</th>
+                <th>Actions</th>
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            {% for employee in employees %}
+
+            <tr>
+
+                <td>{{ employee.employee_id }}</td>
+
+                <td>{{ employee.name }}</td>
+
+                <td>
+
+                    {% if employee.role == 'manager' %}
+
+                        <span class="badge bg-primary">
+                            Manager
+                        </span>
+
+                    {% else %}
+
+                        <span class="badge bg-success">
+                            Sales Rep
+                        </span>
+
+                    {% endif %}
+
+                </td>
+
+                <td>
+
+                    {% if employee.manager_id %}
+
+                        {{ employee.manager_id }}
+
+                    {% else %}
+
+                        -
+
+                    {% endif %}
+
+                </td>
+<td>
+
+    <a href="/edit-employee/{{ employee.employee_id }}"
+       class="btn btn-sm btn-primary">
+       Edit
+    </a>
+
+    <a href="/delete-employee/{{ employee.employee_id }}"
+       class="btn btn-sm btn-danger">
+       Delete
+    </a>
+
+</td>
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}
