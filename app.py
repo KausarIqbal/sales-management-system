@@ -1,9 +1,16 @@
-from flask import Flask,jsonify,render_template, request, redirect, session
-
+from flask import Flask, jsonify, render_template, request, redirect, session
+from werkzeug.middleware.proxy_fix import ProxyFix
 from db import get_connection
-
+from psycopg2.extras import RealDictCursor
+import os 
+print("🔥 NEW CODE DEPLOYED: app.py v3")
 app = Flask(__name__)
-app.secret_key = "sales_project_secret"
+app.secret_key = "sales_project_secret_2026_hf_fix_12345"
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+app.config.update(SESSION_COOKIE_HTTPONLY=True,SESSION_COOKIE_SAMESITE="None",SESSION_COOKIE_SECURE=True)
+@app.route("/ping")
+def ping():
+    return "pong-v4"
 @app.route("/", methods=["GET", "POST"])
 def login():
 
@@ -13,8 +20,9 @@ def login():
         password = request.form["password"]
 
         conn = get_connection()
-
-        cursor = conn.cursor(dictionary=True)
+        cursor = conn.cursor(
+    cursor_factory=RealDictCursor
+)
 
         query = """
         SELECT * FROM employees
@@ -42,7 +50,10 @@ def login():
             return "Invalid Username or Password"
 
     return render_template("login.html")
-
+print("APP LOADED - DEBUG ROUTES ACTIVE")
+@app.route("/debug-session")
+def debug_session():
+    return str(dict(session))
 
 @app.route("/employees")
 
@@ -59,7 +70,7 @@ def employees():
     conn = get_connection()
     conn = get_connection()
 
-    cursor = conn.cursor(dictionary=True)
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
 
     query = "SELECT * FROM employees"
 
@@ -83,7 +94,7 @@ def products():
 
     conn = get_connection()
 
-    cursor = conn.cursor(dictionary=True)
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
 
     query = "SELECT * FROM products"
 
@@ -106,7 +117,7 @@ def add_sale():
 
     conn = get_connection()
 
-    cursor = conn.cursor(dictionary=True)
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
 
     # Fetch customers
     cursor.execute("SELECT * FROM customers")
@@ -125,7 +136,7 @@ def add_sale():
         # Insert into sales table
         sales_query = """
         INSERT INTO sales(employee_id, customer_id, date)
-        VALUES(%s, %s, CURDATE())
+        VALUES(%s, %s, CURRENT_DATE)
         """
 
         cursor.execute(
@@ -184,7 +195,7 @@ def my_sales():
 
     conn = get_connection()
 
-    cursor = conn.cursor(dictionary=True)
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
 
     query = """
     SELECT s.sale_id,
@@ -226,7 +237,7 @@ def my_stock():
 
     conn = get_connection()
 
-    cursor = conn.cursor(dictionary=True)
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
 
     query = """
 
@@ -267,7 +278,7 @@ def customers():
 
     conn = get_connection()
 
-    cursor = conn.cursor(dictionary=True)
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
 
     query = "SELECT * FROM customers"
 
@@ -290,15 +301,26 @@ def sales_report():
 
     conn = get_connection()
 
-    cursor = conn.cursor(dictionary=True)
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
 
     query = """
-   SELECT s.sale_id,
-       e.name AS sales_rep,
-       c.name AS customer,
-       s.date,
+SELECT
 
-       SUM(si.quantity * si.price) AS total_amount
+    s.sale_id,
+
+    e.name AS sales_rep,
+
+    c.name AS customer,
+
+    p.name AS product,
+
+    si.quantity,
+
+    si.price,
+
+    (si.quantity * si.price) AS total_amount,
+
+    s.date
 
 FROM sales s
 
@@ -311,10 +333,11 @@ ON s.customer_id = c.customer_id
 JOIN sale_items si
 ON s.sale_id = si.sale_id
 
-GROUP BY s.sale_id,
-         e.name,
-         c.name,
-         s.date
+JOIN products p
+ON si.product_id = p.product_id
+
+ORDER BY s.sale_id DESC
+
 """
     cursor.execute(query)
 
@@ -373,7 +396,7 @@ def edit_product(id):
         return "Access Denied"
 
     conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
 
     if request.method == "POST":
 
@@ -458,25 +481,42 @@ def add_employee():
     if session["role"] != "manager":
         return "Access Denied"
 
+    conn = get_connection()
+
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+    cursor.execute("""
+    SELECT employee_id, name
+    FROM employees
+    WHERE role = 'manager'
+    """)
+
+    managers = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
     if request.method == "POST":
 
         name = request.form["name"]
         role = request.form["role"]
+        manager_id = request.form.get("manager_id") or None
         username = request.form["username"]
         password = request.form["password"]
 
         conn = get_connection()
+
         cursor = conn.cursor()
 
         query = """
         INSERT INTO employees
-        (name, role, username, password)
-        VALUES (%s,%s,%s,%s)
+        (name, role, manager_id, username, password)
+        VALUES (%s,%s,%s,%s,%s)
         """
 
         cursor.execute(
             query,
-            (name, role, username, password)
+            (name, role, manager_id, username, password)
         )
 
         conn.commit()
@@ -486,7 +526,11 @@ def add_employee():
 
         return redirect("/employees")
 
-    return render_template("add_employee.html")
+    return render_template(
+        "add_employee.html",
+        managers=managers
+    )
+    
 @app.route("/edit-employee/<int:id>", methods=["GET", "POST"])
 def edit_employee(id):
 
@@ -497,12 +541,13 @@ def edit_employee(id):
         return "Access Denied"
 
     conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
 
     if request.method == "POST":
 
         name = request.form["name"]
         role = request.form["role"]
+        manager_id = request.form.get("manager_id") or None
         username = request.form["username"]
         password = request.form["password"]
 
@@ -510,6 +555,7 @@ def edit_employee(id):
         UPDATE employees
         SET name=%s,
             role=%s,
+            manager_id=%s,
             username=%s,
             password=%s
         WHERE employee_id=%s
@@ -517,7 +563,7 @@ def edit_employee(id):
 
         cursor.execute(
             query,
-            (name, role, username, password, id)
+            (name, role,manager_id, username, password, id)
         )
 
         conn.commit()
@@ -536,10 +582,24 @@ def edit_employee(id):
 
     cursor.close()
     conn.close()
+    conn = get_connection()
+
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+    cursor.execute("""
+    SELECT employee_id, name
+    FROM employees
+    WHERE role = 'manager'
+    """)
+
+    managers = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
 
     return render_template(
         "edit_employee.html",
-        employee=employee
+        employee=employee, managers=managers
     )
 @app.route("/delete-employee/<int:id>")
 def delete_employee(id):
@@ -587,7 +647,7 @@ def stock_assignment():
         return "Access Denied"
 
     conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
 
     # Save Assignment
 
@@ -600,7 +660,7 @@ def stock_assignment():
         query = """
         INSERT INTO stock_assignments
         (employee_id, product_id, quantity_assigned, date)
-        VALUES (%s,%s,%s,CURDATE())
+        VALUES (%s,%s,%s,CURRENT_DATE)
         """
 
         cursor.execute(
@@ -670,7 +730,7 @@ def dashboard():
         return redirect("/")
 
     conn = get_connection()
-    cursor = conn.cursor(dictionary=True)
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
 
     # =========================
     # MANAGER DASHBOARD
